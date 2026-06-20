@@ -1,10 +1,11 @@
-'use client';
+'use client'; // 🔥 Next.js client component decorator sabse upar
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import ProductCard from '../components/ProductCard'; // Adjust this path to match your structure
 
-export default function HomePage() {
+// 1. Core Logic Component: Isme saara searchParams aur fetching ka logic hai
+function HomePageContent() {
   const searchParams = useSearchParams();
   const search = searchParams.get('search') || '';
   const category = searchParams.get('category') || 'All';
@@ -69,4 +70,18 @@ export default function HomePage() {
         </div>
       )}
     </div>
-  )};
+  );
+}
+
+// 2. 🔥 NEXT.JS BUILD FIX: Default Export ko Suspense mein pack kiya
+export default function HomePage() {
+  return (
+    <Suspense fallback={
+      <div className="text-center py-24 max-w-7xl mx-auto px-4">
+        <p className="text-xl font-bold text-gray-500 animate-pulse tracking-wide">Loading NextGen Marketplace...</p>
+      </div>
+    }>
+      <HomePageContent />
+    </Suspense>
+  );
+}
