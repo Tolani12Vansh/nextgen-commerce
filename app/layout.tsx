@@ -1,11 +1,9 @@
 import AuthProvider from '../components/AuthProvider'; 
-// Path check kar lena apne folder structure ke hisaab se
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Suspense } from 'react';
 import Navbar from "../components/Navbar";
-// Import our new Provider
 import { CartProvider } from "../context/CartContext";
 
 const geistSans = Geist({
@@ -34,7 +32,6 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-gray-50 text-gray-900">
-  {/* AuthProvider sabse upar taaki poori app ko login state pata chale */}
   <AuthProvider>
     <CartProvider>
       <Suspense fallback={<div className="p-4 text-center text-sm text-gray-500">Loading Navigation...</div>}>

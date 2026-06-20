@@ -16,16 +16,16 @@ export default function CheckoutPage() {
   const [errorMessage, setErrorMessage] = useState('');
   const [orderId, setOrderId] = useState('');
   
-  // 🔥 Loop aur repeat success ko rokne ke liye master switch
+  
   const hasProcessed = useRef(false);
 
   const subtotal = cart.reduce((total: number, item: any) => total + item.price * item.quantity, 0);
   const shipping = subtotal > 300 || subtotal === 0 ? 0 : 15.0;
   const totalAmount = subtotal + shipping;
 
-  // 🔒 AUTH GUARD (FIXED: Ab success hone par bahar nahi phekega)
+  
   useEffect(() => {
-    // Check karte hain ki user payment karke toh nahi lauta hai
+    
     const searchParams = new URLSearchParams(window.location.search);
     const isSuccess = searchParams.get('status') === 'success';
 
@@ -34,27 +34,27 @@ export default function CheckoutPage() {
     }
   }, [authStatus, router]);
 
-  // SUCCESS EMAIL & CLEANUP TRIGGER (FIXED: Ab baar-baar success screen nahi aayegi)
-  // 🎉 SUCCESS EMAIL TRIGGER (BULLETPROOF VERSION)
+  
+  
   useEffect(() => {
-    // Jab tak next-auth session check kar raha hai, tab tak ruko
+    
     if (authStatus === 'loading') return; 
 
     const searchParams = new URLSearchParams(window.location.search);
     
     if (searchParams.get('status') === 'success' && !hasProcessed.current) {
-      hasProcessed.current = true; // Lock laga diya
+      hasProcessed.current = true; 
       
       setCheckoutStatus('success');
       
       const generatedOrderId = 'ORD-' + Math.random().toString(36).substr(2, 6).toUpperCase();
       setOrderId(generatedOrderId);
 
-      // Local storage check karo
-      const savedData = localStorage.getItem('tempCheckoutData');
-      localStorage.removeItem('tempCheckoutData'); // Clean up instantly
       
-      // 🔥 BULLETPROOF DATA: Agar local storage dhokha de, toh direct Session se data uthao!
+      const savedData = localStorage.getItem('tempCheckoutData');
+      localStorage.removeItem('tempCheckoutData'); 
+      
+      
       let finalEmail = session?.user?.email;
       let finalName = session?.user?.name || 'Vansh Tolani';
       let finalTotal = totalAmount.toFixed(2);
@@ -66,7 +66,7 @@ export default function CheckoutPage() {
         if (parsed.total) finalTotal = parsed.total;
       }
 
-      // 🔥 GUARANTEED API CALL
+      
       if (finalEmail) {
         fetch('/api/send-email', {
           method: 'POST',
@@ -87,19 +87,19 @@ export default function CheckoutPage() {
         console.error("⚠️ Email hi nahi mila (Na session mein, na local storage mein)");
       }
       
-      // URL clean karo aur Cart empty karo
+      
       window.history.replaceState(null, '', window.location.pathname);
       clearCart();
     }
   }, [authStatus, session, clearCart, totalAmount]); 
-  // Dependency array update ki hai taaki session milne ke baad hi code aage badhe
+  
 
-  // 🔥 DIRECT PAYMENT HANDLER
+  
   const handlePayment = async () => {
     setCheckoutStatus('loading');
     setErrorMessage('');
 
-    // Session data (Agar login glitch kare toh fallback naam use hoga)
+    
     const customerName = session?.user?.name || 'Vansh Tolani';
     const email = session?.user?.email || '';
 
@@ -136,7 +136,7 @@ export default function CheckoutPage() {
     }
   };
 
-  // ⏳ LOADING STATE (Auth load ho raha ho, ya checkout processing chal rahi ho)
+  
   if (authStatus === 'loading' || checkoutStatus === 'loading') {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center pb-20">
@@ -148,7 +148,7 @@ export default function CheckoutPage() {
     );
   }
 
-  // 🎉 SUCCESS SCREEN (Sabse upar priority par, bina kisi overlap ke)
+  
   if (checkoutStatus === 'success') {
     return (
       <div className="max-w-2xl mx-auto px-10 py-16 mt-12 text-center bg-white rounded-3xl shadow-xl border border-gray-100">
@@ -168,13 +168,12 @@ export default function CheckoutPage() {
     );
   }
 
-  // 💳 STANDARD CHECKOUT UI
+  
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <h1 className="text-4xl font-black text-gray-900 mb-10 tracking-tight">Express Checkout</h1>
 
       <div className="flex flex-col lg:flex-row gap-12">
-        {/* Left Side: Account Review */}
         <div className="flex-1 bg-white border border-gray-100 rounded-3xl p-8 shadow-sm h-fit">
           <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
             <User className="h-5 w-5 text-blue-600" /> Account Details
@@ -224,7 +223,6 @@ export default function CheckoutPage() {
           </button>
         </div>
 
-        {/* Right Side: Order Summary */}
         <div className="w-full lg:w-96 bg-gray-50 border border-gray-100 rounded-3xl p-8 h-fit">
           <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
             <Package className="h-5 w-5 text-blue-600" /> Order Summary

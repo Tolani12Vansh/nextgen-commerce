@@ -1,10 +1,10 @@
-'use client'; // 🔥 Next.js client component decorator sabse upar
+'use client'; 
 
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import ProductCard from '../components/ProductCard'; // Adjust this path to match your structure
+import ProductCard from '../components/ProductCard'; 
 
-// 1. Core Logic Component: Isme saara searchParams aur fetching ka logic hai
+
 function HomePageContent() {
   const searchParams = useSearchParams();
   const search = searchParams.get('search') || '';
@@ -30,11 +30,10 @@ function HomePageContent() {
     }
 
     fetchFilteredProducts();
-  }, [search, category]); // Re-run whenever user types or switches categories
+  }, [search, category]); 
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      {/* Dynamic Title Context - Optimized for Dark Background */}
       <div className="mb-10 bg-gray-900/50 border border-gray-800 rounded-3xl p-6 sm:p-8 backdrop-blur-sm">
         <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
           {search ? (
@@ -73,7 +72,7 @@ function HomePageContent() {
   );
 }
 
-// 2. 🔥 NEXT.JS BUILD FIX: Default Export ko Suspense mein pack kiya
+
 export default function HomePage() {
   return (
     <Suspense fallback={

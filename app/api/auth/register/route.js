@@ -17,17 +17,17 @@ export async function POST(request) {
 
     await dbConnect();
 
-    // Check if user already exists
+    
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return NextResponse.json({ error: "Email is already registered." }, { status: 400 });
     }
 
-    // Encrypt the password before saving
+    
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Save the new user
+    
     const newUser = await User.create({
       name,
       email,

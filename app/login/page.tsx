@@ -7,7 +7,7 @@ import Link from 'next/link';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [isLogin, setIsLogin] = useState(true); // Toggle between Login and Signup
+  const [isLogin, setIsLogin] = useState(true); 
   
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -22,7 +22,7 @@ export default function LoginPage() {
     setLoading(true);
 
     if (isLogin) {
-      // --- LOGIN LOGIC ---
+      
       const res = await signIn('credentials', {
         redirect: false,
         email,
@@ -33,11 +33,11 @@ export default function LoginPage() {
         setError(res.error);
         setLoading(false);
       } else {
-        router.push('/'); // Login success hone par home page par bhej do
+        router.push('/'); 
         router.refresh();
       }
     } else {
-      // --- SIGNUP LOGIC ---
+      
       try {
         const res = await fetch('/api/auth/register', {
           method: 'POST',
@@ -51,7 +51,7 @@ export default function LoginPage() {
           setError(data.error);
           setLoading(false);
         } else {
-          // Signup success ho gaya, ab direct automatic login karwa do
+          
           const loginRes = await signIn('credentials', {
             redirect: false,
             email,
@@ -74,7 +74,6 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-950 px-4 py-12">
       <div className="max-w-md w-full space-y-8 bg-gray-900 p-10 rounded-3xl shadow-2xl border border-gray-800">
         
-        {/* Header section */}
         <div className="text-center">
           <h2 className="text-3xl font-black text-white tracking-tight">
             {isLogin ? 'Welcome back' : 'Create an account'}
@@ -84,11 +83,9 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Form */}
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
             
-            {/* Show Name input only if it's Signup */}
             {!isLogin && (
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1">Full Name</label>
@@ -128,14 +125,12 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Error Message Display */}
           {error && (
             <div className="bg-red-900/50 border border-red-500/50 text-red-200 px-4 py-3 rounded-lg text-sm text-center">
               {error}
             </div>
           )}
 
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
@@ -145,7 +140,6 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* Toggle Button */}
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-400">
             {isLogin ? "Don't have an account? " : "Already have an account? "}

@@ -7,12 +7,10 @@ import { Trash2, Plus, ShoppingBag } from 'lucide-react';
 export default function CartPage() {
   const { cart, addToCart, removeFromCart, clearCart } = useCart();
 
-  // Calculate prices safely
   const subtotal = cart.reduce((total: number, item: any) => total + item.price * item.quantity, 0);
   const shipping = subtotal > 300 || subtotal === 0 ? 0 : 15.0;
   const total = subtotal + shipping;
 
-  // Empty Cart State
   if (cart.length === 0) {
     return (
       <div className="max-w-3xl mx-auto px-4 py-20 text-center">
@@ -33,20 +31,17 @@ export default function CartPage() {
     );
   }
 
-  // Active Cart State
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <h1 className="text-4xl font-black text-gray-900 mb-10 tracking-tight">Shopping Bag</h1>
 
       <div className="flex flex-col lg:flex-row gap-12">
-        {/* Left Side: List of Items */}
         <div className="flex-1 space-y-6">
           {cart.map((item : any) => (
             <div 
               key={item._id} 
               className="flex flex-col sm:flex-row items-center justify-between bg-white border border-gray-100 rounded-2xl p-6 shadow-sm gap-6"
             >
-              {/* Product Info */}
               <div className="flex items-center space-x-6 w-full sm:w-auto">
                 <div className="w-20 h-20 bg-gray-50 rounded-xl overflow-hidden flex-shrink-0 relative">
                   <img 
@@ -62,7 +57,6 @@ export default function CartPage() {
                 </div>
               </div>
 
-              {/* Actions: Quantity adjustments & Delete */}
               <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto space-x-8 border-t sm:border-t-0 pt-4 sm:pt-0">
                 <div className="flex items-center space-x-3 bg-gray-50 border border-gray-200 px-3 py-1.5 rounded-xl">
                   <button 
@@ -98,7 +92,7 @@ export default function CartPage() {
           </button>
         </div>
 
-        {/* Right Side: Order Summary */}
+
         <div className="w-full lg:w-96 bg-white border border-gray-100 rounded-3xl p-8 shadow-sm h-fit">
           <h2 className="text-xl font-bold text-gray-900 mb-6">Order Summary</h2>
           
@@ -125,7 +119,6 @@ export default function CartPage() {
             <span className="text-2xl font-black text-gray-900">${total.toFixed(2)}</span>
           </div>
 
-          {/* This link sends them to the checkout page we just built! */}
           <Link href="/checkout" className="block text-center w-full bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-600/20 hover:bg-blue-700 transition-all duration-300 active:scale-95">
             Proceed to Checkout
           </Link>

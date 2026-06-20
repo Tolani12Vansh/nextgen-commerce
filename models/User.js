@@ -18,7 +18,7 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please add a password'],
     minlength: 6,
-    select: false // This prevents the password from being accidentally sent to the frontend
+    select: false
   },
   role: {
     type: String,

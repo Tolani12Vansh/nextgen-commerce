@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { PackagePlus, LayoutDashboard } from 'lucide-react';
 
 export default function AdminDashboard() {
-  const [status, setStatus] = useState('idle'); // 'idle' | 'loading' | 'success' | 'error'
+  const [status, setStatus] = useState('idle');
   const [message, setMessage] = useState('');
   
   const [productData, setProductData] = useState({
@@ -56,7 +56,6 @@ export default function AdminDashboard() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12 space-y-8">
-      {/* HEADER CARD - Updated with a white background and sharp typography */}
       <div className="bg-white border border-gray-100 rounded-3xl p-6 sm:p-8 shadow-sm flex items-center space-x-4">
         <div className="w-12 h-12 bg-blue-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/20 flex-shrink-0">
           <LayoutDashboard className="h-6 w-6" />
@@ -67,7 +66,6 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* FORM CARD */}
       <div className="bg-white border border-gray-100 rounded-3xl p-6 sm:p-8 shadow-sm">
         <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2 border-b border-gray-100 pb-4">
           <PackagePlus className="h-5 w-5 text-blue-600" /> Add New Product

@@ -6,7 +6,7 @@ export async function GET(request, { params }) {
   try {
     await dbConnect();
     
-    // Find the specific product matching the ID in the URL
+    
     const product = await Product.findById(params.id);
     
     if (!product) {

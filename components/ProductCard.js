@@ -1,6 +1,5 @@
-'use client'; // Essential for click events!
+'use client';
 
-// ... existing imports
 import Link from 'next/link';
 import { useCart } from '../context/CartContext';
 
@@ -9,8 +8,6 @@ export default function ProductCard({ product }) {
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col group">
-      
-      {/* Clicking the image takes you to the details page */}
       <Link href={`/product/${product._id}`} className="relative aspect-square bg-gray-50 overflow-hidden cursor-pointer block">
         <img 
   src={product.images?.[0]?.url || 'https://images.unsplash.com/photo-1531403009284-440f080d1e12'} 
@@ -29,7 +26,6 @@ export default function ProductCard({ product }) {
           {product.category}
         </span>
         
-        {/* Clicking the title also takes you to the details page */}
         <Link href={`/product/${product._id}`}>
           <h3 className="text-lg font-bold text-gray-900 line-clamp-1 group-hover:text-blue-600 transition-colors cursor-pointer">
             {product.name}

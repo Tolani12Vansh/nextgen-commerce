@@ -9,7 +9,7 @@ export async function POST(request) {
     const body = await request.json();
     const { customerName, email, shippingAddress, items, totalAmount } = body;
 
-    // 1. INVENTORY TRACKING: Loop through each item and deduct stock
+    
     for (const item of items) {
       const product = await Product.findById(item._id);
       
@@ -24,12 +24,12 @@ export async function POST(request) {
         }, { status: 400 });
       }
 
-      // Deduct the stock count safely
+      
       product.stockCount -= item.quantity;
       await product.save();
     }
 
-    // 2. Save the order to the database
+    
     const newOrder = await Order.create({
       customerName,
       email,
@@ -43,7 +43,7 @@ export async function POST(request) {
       totalAmount
     });
 
-    // NOTE: We will hook up the automated Resend email step right here in the next step!
+    
 
     return NextResponse.json({ 
       success: true, 

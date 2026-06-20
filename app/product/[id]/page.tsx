@@ -1,7 +1,7 @@
 import dbConnect from '../../../lib/dbConnect';
 import Product from '../../../models/Product';
 import AddToCartButton from '../../../components/AddToCartButton';
-import ReviewForm from '../../../components/ReviewForm'; // <--- Import it here
+import ReviewForm from '../../../components/ReviewForm';
 
 async function getProduct(id: string) {
   try {
@@ -31,7 +31,6 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      {/* Product Details Card */}
       <div className="flex flex-col md:flex-row gap-12 bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
         <div className="w-full md:w-1/2 bg-gray-50 rounded-2xl overflow-hidden aspect-square relative">
           <img
@@ -69,14 +68,11 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         </div>
       </div>
 
-      {/* --- REVIEWS TIMELINE BLOCK --- */}
       <div className="mt-16 border-t border-gray-800 pt-12 max-w-4xl mx-auto">
         <h2 className="text-2xl font-black text-white mb-8">Customer Reviews</h2>
         
-        {/* Render Clean Review Form Component safely */}
         <ReviewForm productId={product._id} />
 
-        {/* Dynamic Reviews Output */}
         <div className="space-y-6">
           {product.reviews && product.reviews.length > 0 ? (
             product.reviews.map((rev: any) => (

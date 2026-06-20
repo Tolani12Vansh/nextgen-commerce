@@ -23,14 +23,12 @@ export async function POST(request) {
       quantity: item.quantity || 1,
     }));
 
-    // Dynamic Origin setup
     const origin = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
     
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: lineItems,
       mode: 'payment',
-      // 🔥 FIX: Ab yeh dynamic `${origin}` use karega, live site par live URL aur local par localhost!
       success_url: `${origin}/checkout?status=success`,
       cancel_url: `${origin}/cart`,
       metadata: {

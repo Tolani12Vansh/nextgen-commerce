@@ -12,7 +12,6 @@ export default function Navbar() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Handle live search changes and synchronize with the URL query params
   const handleSearchChange = (e) => {
     const value = e.target.value;
     const params = new URLSearchParams(searchParams.toString());
@@ -23,7 +22,7 @@ export default function Navbar() {
       params.delete('search');
     }
     
-    // Pushes updates to the URL query string instantly as the user types
+    
     router.push(`/?${params.toString()}`);
   };
 
@@ -31,15 +30,12 @@ export default function Navbar() {
     <nav className="w-full bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
-          
-          {/* Brand Logo */}
           <div className="flex-shrink-0 flex items-center">
             <Link href="/" className="text-2xl font-black tracking-tight text-gray-900">
               NEXTGEN<span className="text-blue-600">.</span>
             </Link>
           </div>
 
-          {/* Centered Search Bar */}
           <div className="flex-1 max-w-md mx-8 hidden md:block">
             <div className="relative">
               <input
@@ -53,18 +49,13 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* Right Action Icons & Auth */}
           <div className="flex items-center space-x-6">
-            
-            {/* Wishlist */}
             <Link href="/wishlist" className="text-gray-600 hover:text-gray-900 transition-colors relative">
               <Heart className="h-5 w-5" />
             </Link>
             
-            {/* Cart */}
             <Link href="/cart" className="text-gray-600 hover:text-gray-900 transition-colors relative">
               <ShoppingCart className="h-5 w-5" />
-              {/* If items exist, render the live counter badge */}
               {cartCount > 0 && (
                 <span className="absolute -top-1.5 -right-2 bg-blue-600 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center scale-90 animate-pulse">
                   {cartCount}
@@ -72,13 +63,12 @@ export default function Navbar() {
               )}
             </Link>
 
-            {/* Smart Auth Section */}
             <div className="pl-4 border-l border-gray-200 flex items-center">
               {status === 'loading' ? (
-                // Loading Skeleton
+                
                 <div className="animate-pulse bg-gray-200 h-9 w-24 rounded-xl"></div>
               ) : session?.user ? (
-                // Logged In View
+                
                 <div className="flex items-center gap-4">
                   <span className="text-sm font-bold text-gray-700 hidden sm:block">
                     Hi, {session.user.name?.split(' ')[0]} 👋
@@ -91,7 +81,7 @@ export default function Navbar() {
                   </button>
                 </div>
               ) : (
-                // Logged Out View
+                
                 <Link 
                   href="/login" 
                   className="bg-blue-600 text-white hover:bg-blue-700 px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg shadow-blue-600/20"

@@ -23,7 +23,7 @@ export default function ReviewForm({ productId }) {
       });
       
       if (res.ok) {
-        window.location.reload(); // Refresh to display the new review instantly
+        window.location.reload();
       }
     } catch (err) {
       console.error("Failed to post review:", err);
