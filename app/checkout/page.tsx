@@ -35,42 +35,64 @@ export default function CheckoutPage() {
   }, [authStatus, router]);
 
   // SUCCESS EMAIL & CLEANUP TRIGGER (FIXED: Ab baar-baar success screen nahi aayegi)
+  // 🎉 SUCCESS EMAIL TRIGGER (BULLETPROOF VERSION)
   useEffect(() => {
+    // Jab tak next-auth session check kar raha hai, tab tak ruko
+    if (authStatus === 'loading') return; 
+
     const searchParams = new URLSearchParams(window.location.search);
     
     if (searchParams.get('status') === 'success' && !hasProcessed.current) {
-      hasProcessed.current = true; // Block kar do taaki dubara run na ho
-      
-      // 🔥 MAGIC FIX: URL se ?status=success completely uda do. 
-      // Isse tu naya order lagayega toh purana success nahi dikhega!
-      window.history.replaceState(null, '', window.location.pathname);
+      hasProcessed.current = true; // Lock laga diya
       
       setCheckoutStatus('success');
       
       const generatedOrderId = 'ORD-' + Math.random().toString(36).substr(2, 6).toUpperCase();
       setOrderId(generatedOrderId);
 
+      // Local storage check karo
       const savedData = localStorage.getItem('tempCheckoutData');
+      localStorage.removeItem('tempCheckoutData'); // Clean up instantly
+      
+      // 🔥 BULLETPROOF DATA: Agar local storage dhokha de, toh direct Session se data uthao!
+      let finalEmail = session?.user?.email;
+      let finalName = session?.user?.name || 'Vansh Tolani';
+      let finalTotal = totalAmount.toFixed(2);
+
       if (savedData) {
-        const { customerName, email, total } = JSON.parse(savedData);
-        localStorage.removeItem('tempCheckoutData');
+        const parsed = JSON.parse(savedData);
+        if (parsed.email) finalEmail = parsed.email;
+        if (parsed.customerName) finalName = parsed.customerName;
+        if (parsed.total) finalTotal = parsed.total;
+      }
+
+      // 🔥 GUARANTEED API CALL
+      if (finalEmail) {
         fetch('/api/send-email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            email,
-            customerName,
+            email: finalEmail,
+            customerName: finalName,
             orderId: generatedOrderId,
-            totalAmount: total
+            totalAmount: finalTotal
           })
-        }).then(() => {
-          localStorage.removeItem('tempCheckoutData'); 
-        }).catch(err => console.error("Email API failed:", err));
+        })
+        .then(async (res) => {
+          if (!res.ok) console.error("🚨 Server ne email reject kiya:", await res.text());
+          else console.log("✅ Email successfully Vercel par bheja gaya!");
+        })
+        .catch(err => console.error("🚨 Fetch network error:", err));
+      } else {
+        console.error("⚠️ Email hi nahi mila (Na session mein, na local storage mein)");
       }
       
+      // URL clean karo aur Cart empty karo
+      window.history.replaceState(null, '', window.location.pathname);
       clearCart();
     }
-  }, [clearCart]);
+  }, [authStatus, session, clearCart, totalAmount]); 
+  // Dependency array update ki hai taaki session milne ke baad hi code aage badhe
 
   // 🔥 DIRECT PAYMENT HANDLER
   const handlePayment = async () => {
