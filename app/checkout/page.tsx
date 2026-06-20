@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react'; // 🔥 useRef add kiya hai
 import { useCart } from '../../context/CartContext';
 import Link from 'next/link';
 import { CheckCircle, Package, User } from 'lucide-react';
@@ -15,22 +15,29 @@ export default function CheckoutPage() {
   const [checkoutStatus, setCheckoutStatus] = useState('idle'); 
   const [errorMessage, setErrorMessage] = useState('');
   const [orderId, setOrderId] = useState('');
+  
+  // 🔥 Loop se bachane ke liye ek guard laga diya
+  const hasProcessed = useRef(false);
 
   const subtotal = cart.reduce((total: number, item: any) => total + item.price * item.quantity, 0);
   const shipping = subtotal > 300 || subtotal === 0 ? 0 : 15.0;
   const totalAmount = subtotal + shipping;
 
-  // 🔒 AUTH GUARD: Bina login walo ko seedha Login page par feko
+  // 🔒 AUTH GUARD
   useEffect(() => {
     if (authStatus === 'unauthenticated') {
       router.push('/login');
     }
   }, [authStatus, router]);
 
-  // SUCCESS EMAIL TRIGGER
+  // SUCCESS EMAIL TRIGGER (Ab infinite loop nahi banega)
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
-    if (query.get('status') === 'success') {
+    
+    // Check karega ki status success hai aur kya yeh code pehle chal chuka hai
+    if (query.get('status') === 'success' && !hasProcessed.current) {
+      hasProcessed.current = true; // 🔥 Isko true kar diya taaki dubara na chale!
+      
       setCheckoutStatus('success');
       
       const generatedOrderId = 'ORD-' + Math.random().toString(36).substr(2, 6).toUpperCase();
@@ -53,17 +60,18 @@ export default function CheckoutPage() {
           localStorage.removeItem('tempCheckoutData'); 
         }).catch(err => console.error("Email failed:", err));
       }
+      
+      // Cart clear karna ab safe hai
       clearCart();
     }
-  }, [clearCart]);
+  }, []); // 🔥 Dependency array empty kar di taaki loop na bane
 
-  // 🔥 DIRECT PAYMENT HANDLER (No Form Needed)
+  // 🔥 DIRECT PAYMENT HANDLER
   const handlePayment = async () => {
     setCheckoutStatus('loading');
     setErrorMessage('');
 
-    // Session se direct data utha lo bina user se puche
-    const customerName = session?.user?.name || 'Customer';
+    const customerName = session?.user?.name || 'Vansh Tolani';
     const email = session?.user?.email || '';
 
     try {
@@ -80,7 +88,7 @@ export default function CheckoutPage() {
           cart, 
           customerName, 
           email, 
-          shippingAddress: 'Provided at Payment Gateway' // Address ab Stripe collect karega
+          shippingAddress: 'Provided at Payment Gateway'
         })
       });
 
@@ -99,17 +107,7 @@ export default function CheckoutPage() {
     }
   };
 
-  // ⏳ LOADING STATE
-  if (authStatus === 'loading' || authStatus === 'unauthenticated') {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center pb-20">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-        <p className="text-gray-500 font-bold animate-pulse">Securing your checkout...</p>
-      </div>
-    );
-  }
-
-  // SUCCESS SCREEN
+  // SUCCESS SCREEN (Loading state se upar kar diya taaki clash na ho)
   if (checkoutStatus === 'success') {
     return (
       <div className="max-w-2xl mx-auto px-10 py-16 mt-12 text-center bg-white rounded-3xl shadow-xl border border-gray-100">
@@ -129,13 +127,23 @@ export default function CheckoutPage() {
     );
   }
 
-  // STANDARD CHECKOUT RENDERING (FORM-FREE)
+  // ⏳ LOADING STATE
+  if (authStatus === 'loading' || checkoutStatus === 'loading') {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center pb-20">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+        <p className="text-gray-500 font-bold animate-pulse">Securing your checkout...</p>
+      </div>
+    );
+  }
+
+  // STANDARD CHECKOUT RENDERING
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <h1 className="text-4xl font-black text-gray-900 mb-10 tracking-tight">Express Checkout</h1>
 
       <div className="flex flex-col lg:flex-row gap-12">
-        {/* Left Side: Account Review (No Inputs) */}
+        {/* Left Side: Account Review */}
         <div className="flex-1 bg-white border border-gray-100 rounded-3xl p-8 shadow-sm h-fit">
           <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
             <User className="h-5 w-5 text-blue-600" /> Account Details
