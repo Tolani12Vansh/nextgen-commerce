@@ -3,6 +3,7 @@ import AuthProvider from '../components/AuthProvider';
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { Suspense } from 'react';
 import Navbar from "../components/Navbar";
 // Import our new Provider
 import { CartProvider } from "../context/CartContext";
@@ -36,7 +37,9 @@ export default function RootLayout({
   {/* AuthProvider sabse upar taaki poori app ko login state pata chale */}
   <AuthProvider>
     <CartProvider>
+      <Suspense fallback={<div className="p-4 text-center text-sm text-gray-500">Loading Navigation...</div>}>
       <Navbar />
+      </Suspense>
       <main className="flex-grow">{children}</main>
     </CartProvider>
   </AuthProvider>
