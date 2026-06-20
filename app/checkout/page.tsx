@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react'; // 🔥 useRef add kiya hai
+import { useState, useEffect, useRef } from 'react';
 import { useCart } from '../../context/CartContext';
 import Link from 'next/link';
 import { CheckCircle, Package, User } from 'lucide-react';
@@ -16,27 +16,34 @@ export default function CheckoutPage() {
   const [errorMessage, setErrorMessage] = useState('');
   const [orderId, setOrderId] = useState('');
   
-  // 🔥 Loop se bachane ke liye ek guard laga diya
+  // 🔥 Loop aur repeat success ko rokne ke liye master switch
   const hasProcessed = useRef(false);
 
   const subtotal = cart.reduce((total: number, item: any) => total + item.price * item.quantity, 0);
   const shipping = subtotal > 300 || subtotal === 0 ? 0 : 15.0;
   const totalAmount = subtotal + shipping;
 
-  // 🔒 AUTH GUARD
+  // 🔒 AUTH GUARD (FIXED: Ab success hone par bahar nahi phekega)
   useEffect(() => {
-    if (authStatus === 'unauthenticated') {
+    // Check karte hain ki user payment karke toh nahi lauta hai
+    const searchParams = new URLSearchParams(window.location.search);
+    const isSuccess = searchParams.get('status') === 'success';
+
+    if (authStatus === 'unauthenticated' && !isSuccess) {
       router.push('/login');
     }
   }, [authStatus, router]);
 
-  // SUCCESS EMAIL TRIGGER (Ab infinite loop nahi banega)
+  // SUCCESS EMAIL & CLEANUP TRIGGER (FIXED: Ab baar-baar success screen nahi aayegi)
   useEffect(() => {
-    const query = new URLSearchParams(window.location.search);
+    const searchParams = new URLSearchParams(window.location.search);
     
-    // Check karega ki status success hai aur kya yeh code pehle chal chuka hai
-    if (query.get('status') === 'success' && !hasProcessed.current) {
-      hasProcessed.current = true; // 🔥 Isko true kar diya taaki dubara na chale!
+    if (searchParams.get('status') === 'success' && !hasProcessed.current) {
+      hasProcessed.current = true; // Block kar do taaki dubara run na ho
+      
+      // 🔥 MAGIC FIX: URL se ?status=success completely uda do. 
+      // Isse tu naya order lagayega toh purana success nahi dikhega!
+      window.history.replaceState(null, '', window.location.pathname);
       
       setCheckoutStatus('success');
       
@@ -58,19 +65,19 @@ export default function CheckoutPage() {
           })
         }).then(() => {
           localStorage.removeItem('tempCheckoutData'); 
-        }).catch(err => console.error("Email failed:", err));
+        }).catch(err => console.error("Email API failed:", err));
       }
       
-      // Cart clear karna ab safe hai
       clearCart();
     }
-  }, []); // 🔥 Dependency array empty kar di taaki loop na bane
+  }, [clearCart]);
 
   // 🔥 DIRECT PAYMENT HANDLER
   const handlePayment = async () => {
     setCheckoutStatus('loading');
     setErrorMessage('');
 
+    // Session data (Agar login glitch kare toh fallback naam use hoga)
     const customerName = session?.user?.name || 'Vansh Tolani';
     const email = session?.user?.email || '';
 
@@ -107,7 +114,19 @@ export default function CheckoutPage() {
     }
   };
 
-  // SUCCESS SCREEN (Loading state se upar kar diya taaki clash na ho)
+  // ⏳ LOADING STATE (Auth load ho raha ho, ya checkout processing chal rahi ho)
+  if (authStatus === 'loading' || checkoutStatus === 'loading') {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center pb-20">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+        <p className="text-gray-500 font-bold animate-pulse">
+          {checkoutStatus === 'loading' ? "Securing your checkout..." : "Verifying account..."}
+        </p>
+      </div>
+    );
+  }
+
+  // 🎉 SUCCESS SCREEN (Sabse upar priority par, bina kisi overlap ke)
   if (checkoutStatus === 'success') {
     return (
       <div className="max-w-2xl mx-auto px-10 py-16 mt-12 text-center bg-white rounded-3xl shadow-xl border border-gray-100">
@@ -117,7 +136,7 @@ export default function CheckoutPage() {
           Payment successful! Your order <span className="font-mono text-blue-700 bg-blue-50 border border-blue-100 px-3 py-1.5 rounded-lg font-bold">{orderId}</span> is confirmed. 
           <br/><br/>
           <span className="text-sm font-semibold bg-green-50 text-green-700 px-4 py-2 rounded-full">
-            We've sent a receipt to {session?.user?.email}.
+            We've sent a receipt to {session?.user?.email || 'your email'}.
           </span>
         </p>
         <Link href="/" className="inline-block bg-blue-600 text-white font-bold px-10 py-4 rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20">
@@ -127,17 +146,7 @@ export default function CheckoutPage() {
     );
   }
 
-  // ⏳ LOADING STATE
-  if (authStatus === 'loading' || checkoutStatus === 'loading') {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center pb-20">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-        <p className="text-gray-500 font-bold animate-pulse">Securing your checkout...</p>
-      </div>
-    );
-  }
-
-  // STANDARD CHECKOUT RENDERING
+  // 💳 STANDARD CHECKOUT UI
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <h1 className="text-4xl font-black text-gray-900 mb-10 tracking-tight">Express Checkout</h1>
@@ -153,7 +162,7 @@ export default function CheckoutPage() {
             <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 flex justify-between items-center">
               <div>
                 <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Name</p>
-                <p className="font-bold text-gray-900">{session?.user?.name}</p>
+                <p className="font-bold text-gray-900">{session?.user?.name || 'Vansh Tolani'}</p>
               </div>
               <CheckCircle className="h-5 w-5 text-green-500" />
             </div>
