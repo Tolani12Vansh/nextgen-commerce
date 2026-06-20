@@ -53,7 +53,7 @@ export default function CheckoutPage() {
       const savedData = localStorage.getItem('tempCheckoutData');
       if (savedData) {
         const { customerName, email, total } = JSON.parse(savedData);
-        
+        localStorage.removeItem('tempCheckoutData');
         fetch('/api/send-email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
